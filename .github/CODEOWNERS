@@ -1,0 +1,3 @@
+* @minvws/nl-rdo-mgo-codeowners
+# Last match takes precedence
+.github/CODEOWNERS @minvws/irealisatie-operations
