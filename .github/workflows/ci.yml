@@ -1,0 +1,27 @@
+name: CI
+
+on:
+    workflow_dispatch:
+    push:
+        branches: [main]
+        tags: [v*]
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+jobs:
+    ci:
+        name: Checkout, SonarQube scan
+        runs-on: ubuntu-24.04
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+              with:
+                fetch-depth: 0
+
+            - name: Run SonarQube scan
+              uses: minvws/action-sonarqube@v1
+              with:
+                sonar-token: ${{ secrets.SONAR_TOKEN }}
+                allow-run-on-dependabot: 'true'
+
