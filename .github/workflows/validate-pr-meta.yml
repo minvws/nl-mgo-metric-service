@@ -1,0 +1,26 @@
+name: Validate PR Meta
+description: Validates the title and description of the pull request.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, edited, synchronize]
+
+jobs:
+  pr-meta-validation:
+    runs-on: ubuntu-latest
+    name: Validate PR Meta
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+            sparse-checkout: |
+                .github
+
+      - name: Validate PR Title (Conventional Commits)
+        uses: ./.github/actions/validate-pr-title
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate PR Description (Template)
+        uses: ./.github/actions/validate-pr-description

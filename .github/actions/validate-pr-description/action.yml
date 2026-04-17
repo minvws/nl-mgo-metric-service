@@ -1,0 +1,51 @@
+name: "Validate PR Description"
+description: "Validates that the pull request description follows the pull request template."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Init action
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "TEMPLATE_PATH=.github/pull_request_template.md" >> "$GITHUB_ENV"
+
+    - name: Check if PR has a description
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        PR_BODY=$(jq --raw-output ".pull_request.body // empty" "$GITHUB_EVENT_PATH")
+
+        if [ -z "$PR_BODY" ]; then
+          echo "ERROR: PR description is missing."
+          exit 1
+        fi
+
+        printf '%s' "$PR_BODY" > pr_body.txt
+
+    - name: Compare PR body to template
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$TEMPLATE_PATH" ]; then
+          echo "WARNING: Default PR template not found at $TEMPLATE_PATH, skipping comparison."
+          exit 0
+        fi
+
+        PR_BODY_CLEAN=$(mktemp)
+        TEMPLATE_CLEAN=$(mktemp)
+
+        sed '/^[[:space:]]*$/d' pr_body.txt | sed 's/[[:space:]]//g' > "$PR_BODY_CLEAN"
+        sed '/^[[:space:]]*$/d' "$TEMPLATE_PATH" | sed 's/[[:space:]]//g' > "$TEMPLATE_CLEAN"
+
+        if cmp -s "$PR_BODY_CLEAN" "$TEMPLATE_CLEAN"; then
+          echo "ERROR: PR description matches the template too closely. Please provide a meaningful description."
+          exit 1
+        else
+          echo "PR description differs sufficiently from the template."
+        fi
+
+    - name: Ensure all checkboxes are checked
+      uses: mheap/require-checklist-action@v2
