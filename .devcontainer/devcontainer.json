@@ -1,0 +1,52 @@
+{
+    "name": "mgo-metric-service",
+    "image": "mcr.microsoft.com/devcontainers/python:3.11",
+    "containerEnv": {
+        "PYTHONUNBUFFERED": "1",
+        "UV_CACHE_DIR": "/home/vscode/.cache/uv",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_LINK_MODE": "copy",
+        "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+        "UV_COMPILE_BYTECODE": "1"
+    },
+    "features": {
+        "ghcr.io/va-h/devcontainers-features/uv:1": {
+            "shellAutocompletion": true
+        },
+        "ghcr.io/jsburckhardt/devcontainer-features/ruff:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "EditorConfig.EditorConfig",
+                "redhat.vscode-yaml",
+                "esbenp.prettier-vscode"
+            ],
+            "settings": {
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true
+                },
+                "[markdown]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.ruff": true,
+                    "source.organizeImports.ruff": true
+                },
+                "python-envs.workspaceSearchPaths": [
+                    "/home/vscode/.venv"
+                ]
+            },
+            "mypy-type-checker.importStrategy": "fromEnvironment"
+        }
+    },
+    "postCreateCommand": "uv sync --locked",
+    "postStartCommand": "uv run pre-commit install",
+    "remoteUser": "vscode",
+    "containerUser": "vscode"
+}

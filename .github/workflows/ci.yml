@@ -10,7 +10,7 @@ on:
 
 jobs:
     ci:
-        name: Checkout, SonarQube scan
+        name: CI Checks (Code Quality, Static Analysis and Security Scan)
         runs-on: ubuntu-24.04
 
         steps:
@@ -19,9 +19,14 @@ jobs:
               with:
                 fetch-depth: 0
 
-            - name: Run SonarQube scan
+            - name: Install uv
+              uses: astral-sh/setup-uv@v7
+
+            - name: Code Quality Checks
+              run: make check
+
+            - name: Static Analysis and Security Scan
               uses: minvws/action-sonarqube@v1
               with:
                 sonar-token: ${{ secrets.SONAR_TOKEN }}
                 allow-run-on-dependabot: 'true'
-
