@@ -78,7 +78,7 @@ class TestMetricsClient:
             ("timing", ("request", 5.4), "timing", "timing"),
         ],
     )
-    def test_swallows_backend_exceptions_on_emit_method(
+    def test_safe_emit_swallows_backend_exceptions(
         self,
         mocker: MockerFixture,
         caplog: pytest.LogCaptureFixture,
@@ -99,5 +99,5 @@ class TestMetricsClient:
 
         assert len(caplog.records) == 1
         assert [record.getMessage() for record in caplog.records] == [
-            f"Failed to write {metric_type} metric 'metric.key'"
+            f"Failed to emit {metric_type} metric 'metric.key'"
         ]

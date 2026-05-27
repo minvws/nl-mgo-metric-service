@@ -26,8 +26,8 @@ dev = [
 cache-dir = "~/.cache/ruff"
 include = [
     "pyproject.toml",
-    "src/mgo_metric_service/*.py",
-    "tests/*.py",
+    "src/mgo_metric_service/**/*.py",
+    "tests/**/*.py",
 ]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
