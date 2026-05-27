@@ -1,0 +1,56 @@
+[project]
+name = "mgo-metric-service"
+version = "0.1.0"
+description = "A metrics client to register metrics with support for various backends"
+readme = "README.md"
+requires-python = ">=3.11, <4"
+dependencies = [
+    "statsd>=4.0.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.7,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.2",
+    "pre-commit>=4.6.0",
+]
+
+[tool.ruff]
+cache-dir = "~/.cache/ruff"
+include = [
+    "pyproject.toml",
+    "src/mgo_metric_service/*.py",
+    "tests/*.py",
+]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"unittest".msg = "use pytest-mock instead"
+
+[tool.mypy]
+files = "src,tests"
+strict = true
+cache_dir = "~/.cache/mypy"
+
+[tool.pytest.ini_options]
+cache_dir = "~/.cache/pytest"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/mgo_metric_service"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[[tool.mypy.overrides]]
+module = "statsd"
+ignore_missing_imports = true

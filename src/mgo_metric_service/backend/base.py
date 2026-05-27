@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from mgo_metric_service.formatting import MetricFormatter
+
+
+class MetricsBackend(Protocol):
+    def incr(self, key: str, count: int = 1) -> None: ...
+
+    def gauge(self, key: str, value: float) -> None: ...
+
+    def timing(self, key: str, duration_ms: float) -> None: ...
+
+    def create_formatter(self) -> MetricFormatter: ...
