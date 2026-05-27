@@ -67,7 +67,7 @@ class MetricsClient:
             emit(key)
         except Exception:
             logger.exception(
-                "Failed to write %s metric %r",
+                "Failed to emit %s metric %r",
                 metric_type,
                 key,
             )

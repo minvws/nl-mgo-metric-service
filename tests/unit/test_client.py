@@ -1,10 +1,10 @@
 import logging
 
 import pytest
-from mgo_metric_service.client import MetricsClient
 from pytest_mock import MockerFixture
 
 from mgo_metric_service.backend.base import MetricsBackend
+from mgo_metric_service.client import MetricsClient
 from mgo_metric_service.formatting.base import MetricFormatter
 
 
@@ -68,4 +68,36 @@ class TestMetricsClient:
             "metric incr: metric.key count=2",
             "metric gauge: metric.key value=1.2",
             "metric timing: metric.key duration_ms=5.4",
+        ]
+
+    @pytest.mark.parametrize(
+        ("method_name", "client_args", "backend_method", "metric_type"),
+        [
+            ("incr", ("request", 2), "incr", "incr"),
+            ("gauge", ("request", 1.2), "gauge", "gauge"),
+            ("timing", ("request", 5.4), "timing", "timing"),
+        ],
+    )
+    def test_swallows_backend_exceptions_on_emit_method(
+        self,
+        mocker: MockerFixture,
+        caplog: pytest.LogCaptureFixture,
+        method_name: str,
+        client_args: tuple[object, ...],
+        backend_method: str,
+        metric_type: str,
+    ) -> None:
+        caplog.set_level(logging.ERROR, logger="mgo_metric_service.client")
+        backend = mocker.Mock(spec=MetricsBackend)
+        formatter = mocker.Mock(spec=MetricFormatter)
+        backend.create_formatter.return_value = formatter
+        formatter.format.return_value = "metric.key"
+        getattr(backend, backend_method).side_effect = OSError("statsd unavailable")
+
+        client = MetricsClient(backend=backend)
+        getattr(client, method_name)(*client_args)
+
+        assert len(caplog.records) == 1
+        assert [record.getMessage() for record in caplog.records] == [
+            f"Failed to write {metric_type} metric 'metric.key'"
         ]
