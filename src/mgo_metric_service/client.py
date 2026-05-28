@@ -1,4 +1,5 @@
 import logging
+from typing import Callable
 
 from .backend import MetricsBackend
 from .types import MetricTags
@@ -20,7 +21,11 @@ class MetricsClient:
     ) -> None:
         key = self._formatter.format(name, tags=tags)
         logger.debug("metric incr: %s count=%d", key, count)
-        self._backend.incr(key, count)
+        self._safe_emit(
+            key,
+            "incr",
+            lambda key: self._backend.incr(key, count),
+        )
 
     def gauge(
         self,
@@ -31,7 +36,11 @@ class MetricsClient:
     ) -> None:
         key = self._formatter.format(name, tags=tags)
         logger.debug("metric gauge: %s value=%s", key, value)
-        self._backend.gauge(key, value)
+        self._safe_emit(
+            key,
+            "gauge",
+            lambda key: self._backend.gauge(key, value),
+        )
 
     def timing(
         self,
@@ -42,7 +51,26 @@ class MetricsClient:
     ) -> None:
         key = self._formatter.format(name, tags=tags)
         logger.debug("metric timing: %s duration_ms=%s", key, duration_ms)
-        self._backend.timing(key, duration_ms)
+        self._safe_emit(
+            key,
+            "timing",
+            lambda key: self._backend.timing(key, duration_ms),
+        )
+
+    def _safe_emit(
+        self,
+        key: str,
+        metric_type: str,
+        emit: Callable[[str], None],
+    ) -> None:
+        try:
+            emit(key)
+        except Exception:
+            logger.exception(
+                "Failed to emit %s metric %r",
+                metric_type,
+                key,
+            )
 
     def __repr__(self) -> str:
         return (
