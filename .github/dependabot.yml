@@ -1,0 +1,44 @@
+version: 2
+
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      python-production:
+        dependency-type: production
+        patterns:
+          - '*'
+      python-development:
+        dependency-type: development
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: devcontainers
+    directory: /.devcontainer
+    schedule:
+      interval: weekly
+      day: monday
+
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      pre-commit:
+        patterns:
+          - '*'
